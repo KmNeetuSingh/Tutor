@@ -1,11 +1,12 @@
-import mongoose from "mongoose";
+const mongoose = require("mongoose");
 
 const requestSchema = new mongoose.Schema({
-  subject: String,
+  student: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
+  subject: { type: String, required: true },
   description: String,
-  student: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
-  applicants: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
-  scheduledAt: Date,
-});
+  tutor: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
+  scheduledDate: Date,
+  status: { type: String, enum: ["open", "applied", "scheduled", "completed"], default: "open" }
+}, { timestamps: true });
 
-export default mongoose.model("Request", requestSchema);
+module.exports = mongoose.model("Request", requestSchema);
