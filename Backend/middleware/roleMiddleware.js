@@ -1,8 +1,13 @@
-const roleMiddleware = (requiredRole) => (req, res, next) => {
-  if (req.user.role !== requiredRole) {
-    return res.status(403).json({ message: "Access denied" });
-  }
-  next();
-};
+  const roleMiddleware = (allowedRoles) => (req, res, next) => {
+    if (!req.user || !req.user.role) {
+      return res.status(403).json({ message: "User role not found" });
+    }
+    
+    if (!allowedRoles.includes(req.user.role)) {
+      return res.status(403).json({ message: "Access denied. Required role: " + allowedRoles.join(", ") });
+    }
+    
+    next();
+  };
 
-module.exports = roleMiddleware;
+  module.exports = roleMiddleware;

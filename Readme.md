@@ -1,59 +1,104 @@
-Absolutely! Here's a **clean and scalable folder structure** for both the **frontend** and **backend** of your **Tutor Requesting App** project, ideal for real-world development and easy collaboration:
+# API Testing Script
 
----
+This script tests the Tutor API endpoints for the request functionality.
 
-### 🌐 Frontend (React.js)
+## Prerequisites
+
+- Node.js installed
+- The backend server running on http://localhost:5000
+
+## Setup
+
+1. Install dependencies:
 ```
-/client
-├── /public
-│   └── index.html
-├── /src
-│   ├── /assets          # Images, logos, icons, etc.
-│   ├── /components      # Reusable UI components (e.g., Navbar, Button)
-│   ├── /pages           # Route-level components (e.g., Home, Dashboard)
-│   ├── /features        # Feature-based components (e.g., TutorRequestForm, TutorProfile)
-│   ├── /services        # API calls using axios/fetch
-│   ├── /contexts        # React Context API (e.g., AuthContext, ThemeContext)
-│   ├── /hooks           # Custom React hooks
-│   ├── /utils           # Helper functions & constants
-│   ├── /routes          # All route config (if using React Router)
-│   ├── App.jsx
-│   ├── main.jsx         # Entry file
-│   └── index.css
-├── tailwind.config.js / chakra.config.ts
-└── package.json
+npm install
 ```
 
----
-
-### 🔧 Backend (Node.js + Express)
+2. Make sure your backend server is running:
 ```
-/server
-├── /config              # DB config, environment config
-│   └── db.js
-├── /controllers         # Request handlers (e.g., tutorController.js)
-├── /routes              # Express routes (e.g., tutorRoutes.js, authRoutes.js)
-├── /models              # Mongoose models or DB schemas (e.g., User.js, Request.js)
-├── /middlewares         # Auth middleware, error handling
-├── /utils               # Helper functions (e.g., validators, email sender)
-├── /services            # External services (e.g., email, SMS, payment if needed)
-├── server.js            # Entry point
-├── .env
-└── package.json
+cd Backend
+npm start
 ```
 
----
+## Running the Tests
 
-### 🌍 Deployment Notes:
-- **Frontend**: Deployed via Netlify / Vercel
-- **Backend**: Deployed via Render / Railway
-- **Environment Variables** in `.env`:
-  ```
-  MONGO_URI=
-  JWT_SECRET=
-  FRONTEND_URL=
-  ```
+Run the test script:
+```
+npm test
+```
 
----
+## What the Test Does
 
-Let me know if you want a GitHub README structure or need to plug in authentication, chat, or Stripe later 👨‍💻
+The test script performs the following operations:
+
+1. Registers a student user
+2. Logs in as the student and gets a token
+3. Creates a tutoring request (as a student)
+4. Gets all requests
+5. Registers a tutor user
+6. Logs in as the tutor and gets a token
+7. Applies to the request (as a tutor)
+8. Schedules a session (as a tutor)
+
+## Manual Testing
+
+You can also test the API manually using tools like Postman or curl:
+
+1. Register a user:
+```
+POST http://localhost:5000/api/users/register
+Content-Type: application/json
+
+{
+  "name": "Test User",
+  "email": "test@example.com",
+  "password": "password123",
+  "role": "student"
+}
+```
+
+2. Login to get a token:
+```
+POST http://localhost:5000/api/users/login
+Content-Type: application/json
+
+{
+  "email": "test@example.com",
+  "password": "password123"
+}
+```
+
+3. Create a request (with token):
+```
+POST http://localhost:5000/api/requests
+Content-Type: application/json
+Authorization: Bearer YOUR_TOKEN_HERE
+
+{
+  "subject": "Mathematics",
+  "description": "Need help with calculus"
+}
+```
+
+4. Get all requests:
+```
+GET http://localhost:5000/api/requests
+Authorization: Bearer YOUR_TOKEN_HERE
+```
+
+5. Apply to a request (as tutor):
+```
+POST http://localhost:5000/api/requests/apply/REQUEST_ID
+Authorization: Bearer TUTOR_TOKEN_HERE
+```
+
+6. Schedule a session:
+```
+POST http://localhost:5000/api/requests/schedule/REQUEST_ID
+Content-Type: application/json
+Authorization: Bearer TUTOR_TOKEN_HERE
+
+{
+  "scheduledDate": "2023-12-01T14:00:00.000Z"
+}
+```
