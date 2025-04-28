@@ -19,6 +19,6 @@ router.put('/profile', authMiddleware, checkRole(['tutor']), updateTutorProfile)
 router.delete('/profile', authMiddleware, checkRole(['tutor']), deleteTutorProfile);
 
 // Admin route to get all tutor profiles (authentication and admin role required)
-router.get('/profiles', authMiddleware, checkRole(['admin']), getAllTutorProfiles);
+router.get('/profiles', authMiddleware, checkRole(['tutor']), getAllTutorProfiles);
 
 module.exports = router;

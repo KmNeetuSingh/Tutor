@@ -12,9 +12,16 @@ const getTutorProfile = async (req, res) => {
       .populate('education')
       .populate('experience')
       .populate('availability');
-    
+
     if (!profile) {
-      return res.status(404).json({ message: "Profile not found" });
+      const user = await User.findById(req.user.id).select('name email role');
+      if (!user || user.role !== 'tutor') {
+        return res.status(404).json({ message: "Tutor not found" });
+      }
+      return res.json({
+        user,
+        message: "No Tutor Profile created yet."
+      });
     }
 
     res.json(profile);
@@ -43,15 +50,15 @@ const updateTutorProfile = async (req, res) => {
       documents
     } = req.body;
 
-    // Find existing profile or create new one
+    // Ensure that only the owner or admin can update the profile
     let profile = await TutorProfile.findOne({ user: req.user.id });
 
-    // Ensure that only the owner or admin can update the profile
-    if (!profile && req.user.role !== 'admin') {
+    if (!profile && req.user.role !== 'tutor') {
       return res.status(403).json({ message: "You are not authorized to update this profile" });
     }
 
     if (!profile) {
+      // Create a new profile if it doesn't exist
       profile = new TutorProfile({
         user: req.user.id,
         name,
@@ -65,7 +72,7 @@ const updateTutorProfile = async (req, res) => {
         documents
       });
     } else {
-      // Update existing profile
+      // Update existing profile with the new data
       profile.name = name || profile.name;
       profile.email = email || profile.email;
       profile.subjects = subjects || profile.subjects;
@@ -77,19 +84,20 @@ const updateTutorProfile = async (req, res) => {
       profile.documents = documents || profile.documents;
     }
 
-    // Validate the profile
+    // Validate the profile before saving
     try {
       await profile.validate();
     } catch (validationError) {
-      return res.status(400).json({ 
-        message: "Validation error", 
-        errors: validationError.errors 
+      return res.status(400).json({
+        message: "Validation error",
+        errors: validationError.errors
       });
     }
 
+    // Save the profile to the database
     await profile.save();
 
-    // Populate and return updated profile
+    // Populate and return the updated profile
     const updatedProfile = await TutorProfile.findById(profile._id)
       .populate('user', 'name email')
       .populate('education')

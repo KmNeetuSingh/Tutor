@@ -5,7 +5,7 @@ const tutorProfileSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User',
     required: true,
-    unique: true
+    unique: true // 'unique' implicitly creates an index for this field
   },
   name: {
     type: String,
@@ -116,12 +116,11 @@ tutorProfileSchema.pre('save', function(next) {
   next();
 });
 
-// Create indexes for better query performance
-tutorProfileSchema.index({ user: 1 });
+// Create indexes for better query performance (no need for duplicates)
 tutorProfileSchema.index({ subjects: 1 });
 tutorProfileSchema.index({ rating: -1 });
 tutorProfileSchema.index({ isVerified: 1 });
 
 const TutorProfile = mongoose.model('TutorProfile', tutorProfileSchema);
 
-module.exports = TutorProfile; 
+module.exports = TutorProfile;

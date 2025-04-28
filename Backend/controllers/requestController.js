@@ -4,6 +4,9 @@ const { createNotification } = require("./notificationController");
 const createRequest = async (req, res) => {
   try {
     console.log("Creating request - User:", req.user, "Body:", req.body); // ✅ log input
+    if (tutorId && !mongoose.Types.ObjectId.isValid(tutorId)) {
+      return res.status(400).send("Invalid tutorId");
+    }
     const request = new Request({
       student: req.user.id,
       tutor: req.body.tutorId,
@@ -13,6 +16,8 @@ const createRequest = async (req, res) => {
       time: req.body.time,
       duration: req.body.duration,
       budget: req.body.budget,
+      tutor: tutorId ? mongoose.Types.ObjectId(tutorId) : null, // Assign tutorId if valid
+
       status: "pending"
     });
 
