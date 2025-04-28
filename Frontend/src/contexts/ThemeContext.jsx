@@ -1,26 +1,22 @@
 import React, { createContext, useState, useContext, useEffect } from 'react';
 
+// 1. Create the Context
 const ThemeContext = createContext();
 
-export const useTheme = () => useContext(ThemeContext);
-
+// 2. Create the Provider
 export const ThemeProvider = ({ children }) => {
   const [darkMode, setDarkMode] = useState(() => {
-    // Check if user has a preference saved
     const savedTheme = localStorage.getItem('darkMode');
     return savedTheme ? JSON.parse(savedTheme) : true; // Default to dark mode
   });
 
-  // Toggle dark/light mode
   const toggleDarkMode = () => {
     setDarkMode(prevMode => !prevMode);
   };
 
-  // Save theme preference to localStorage
   useEffect(() => {
     localStorage.setItem('darkMode', JSON.stringify(darkMode));
-    
-    // Apply theme to document
+
     if (darkMode) {
       document.documentElement.classList.add('dark-theme');
       document.documentElement.classList.remove('light-theme');
@@ -30,7 +26,6 @@ export const ThemeProvider = ({ children }) => {
     }
   }, [darkMode]);
 
-  // Theme colors
   const theme = {
     dark: {
       primary: '#123458',
@@ -81,4 +76,13 @@ export const ThemeProvider = ({ children }) => {
       {children}
     </ThemeContext.Provider>
   );
-}; 
+};
+
+// 3. Create the custom hook (export after the Provider)
+export const useTheme = () => {
+  const context = useContext(ThemeContext);
+  if (!context) {
+    throw new Error("useTheme must be used within a ThemeProvider");
+  }
+  return context;
+};

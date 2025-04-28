@@ -8,7 +8,7 @@ export const useNotifications = () => {
   return useContext(NotificationContext);
 };
 
-export const NotificationProvider = ({ children }) => {
+export const NotificationProvider = ({ children }) => {SS
   const [notifications, setNotifications] = useState([]);
   const [unreadCount, setUnreadCount] = useState(0);
   const [loading, setLoading] = useState(true);

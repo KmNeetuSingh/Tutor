@@ -36,46 +36,46 @@ const getUserProfile = async (userId, token) => {
   }
 };
 
-// Function to fetch tutor profile
-const getTutorProfile = async (token) => {
+// Function to fetch tutoring request
+const getRequest = async (requestId, token) => {
   try {
-    const response = await axios.get(`${BASE_URL}/tutors/profile`, {
+    const response = await axios.get(`${BASE_URL}/requests/${requestId}`, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
     });
-    console.log('Fetched Tutor Profile:', response.data);
+    console.log('Fetched Request:', response.data);
   } catch (error) {
-    console.error('Error fetching tutor profile:', error.response ? error.response.data : error.message);
+    console.error('Error fetching request:', error.response ? error.response.data : error.message);
   }
 };
 
-// Function to update tutor profile
-const updateTutorProfile = async (token, updatedData) => {
+// Function to update tutoring request
+const updateRequest = async (requestId, updatedData, token) => {
   try {
-    const response = await axios.put(`${BASE_URL}/tutors/profile`, updatedData, {
+    const response = await axios.put(`${BASE_URL}/requests/${requestId}`, updatedData, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
     });
-    console.log('Profile updated:', response.data);
+    console.log('Request updated:', response.data);
   } catch (error) {
-    console.error('Error updating tutor profile:', error.response ? error.response.data : error.message);
+    console.error('Error updating request:', error.response ? error.response.data : error.message);
   }
 };
 
 // Test function to simulate actions
 async function testAPI() {
   try {
-    console.log('🚀 Starting API tests for /users and /tutors routes...\n');
+    console.log('🚀 Starting API tests for /users and /requests routes...\n');
 
     // === Testing /users route ===
 
     // 1. Register New User
     const userData = {
       name: 'Sriti3',
-      email: 'sriti3@gmail.com', 
-      password: 'sriti31234',
+      email: 'sriti13@gmail.com', 
+      password: 'sriti131234',
       role: 'student',
     };
 
@@ -92,8 +92,8 @@ async function testAPI() {
 
     // 2. User Login
     const userLoginData = {
-      email: 'sriti3@gmail.com', 
-      password: 'sriti31234',
+      email: 'sriti13@gmail.com', 
+      password: 'sriti131234',
     };
 
     console.log('\n2. Logging in user...');
@@ -135,61 +135,45 @@ async function testAPI() {
     console.log('\n5. Fetching user profile after update...');
     await getUserProfile(userId, userToken);
 
-    // === Testing /tutors route ===
+    // === Testing /requests route ===
 
-    // 1. Register New Tutor
-    const tutorData = {
-      name: 'Bittu',
-      email: 'sriti3tututor@gmail.com', 
-      password: 'sriti31234tutor',
-      role: 'tutor',
+    // 1. Create New Request
+    const requestData = {
+      studentId: userId,
+      subject: 'Math',
+      description: 'Looking for help with algebra.',
+      preferredTime: '2025-04-30T10:00:00Z',
     };
 
-    console.log('\n1. Registering new tutor...');
-    res = await safePost(`${BASE_URL}/auth/register`, tutorData);
+    console.log('\n1. Creating new tutoring request...');
+    res = await safePost(`${BASE_URL}/requests`, requestData, {
+      Authorization: `Bearer ${userToken}`,
+    });
+    let requestId;
     if (res.success) {
-      console.log('✅ New tutor registered successfully:', res.data.message || res.data);
-    } else if (res.error.status === 409) {
-      console.log('⚠️ Tutor already exists, skipping registration...');
+      requestId = res.data.id;
+      console.log('✅ New tutoring request created successfully:', res.data);
     } else {
-      console.log('❌ Tutor registration failed:', res.error?.data || res.error.message);
+      console.log('❌ Tutoring request creation failed:', res.error?.data || res.error.message);
       return;
     }
 
-    // 2. Tutor Login
-    const tutorLoginData = {
-      email: 'sriti3tututor@gmail.com', 
-      password: 'sriti31234tutor',
+    // 2. Fetch Request Details
+    console.log('\n2. Fetching request details...');
+    await getRequest(requestId, userToken);
+
+    // 3. Update Request
+    const updatedRequestData = {
+      description: 'Looking for help with algebra and calculus.',
+      preferredTime: '2025-05-01T10:00:00Z',
     };
 
-    console.log('\n2. Logging in tutor...');
-    res = await safePost(`${BASE_URL}/auth/login`, tutorLoginData);
-    let tutorToken;
-    if (res.success) {
-      tutorToken = res.data.token;
-      console.log('✅ Tutor login successful.');
-    } else {
-      console.log('❌ Tutor login failed:', res.error?.data || res.error.message);
-      return;
-    }
+    console.log('\n3. Updating tutoring request...');
+    await updateRequest(requestId, updatedRequestData, userToken);
 
-    // 3. Fetch Tutor Profile (Before Update)
-    console.log('\n3. Fetching tutor profile before update...');
-    await getTutorProfile(tutorToken);
-
-    // 4. Update Tutor Profile
-    const updatedTutorData = {
-      name: 'Bittu Updated',
-      email: 'sriti3tututor@gmail.com',  // <-- Important to add this!
-      bio: 'Updated bio for Tutor Bittu.',
-    };
-    
-    console.log('\n4. Updating tutor profile...');
-    await updateTutorProfile(tutorToken, updatedTutorData);
-
-    // 5. Fetch Tutor Profile (After Update)
-    console.log('\n5. Fetching tutor profile after update...');
-    await getTutorProfile(tutorToken);
+    // 4. Fetch Request Details After Update
+    console.log('\n4. Fetching request details after update...');
+    await getRequest(requestId, userToken);
 
     console.log('\n🎯 All API tests completed!');
   } catch (err) {

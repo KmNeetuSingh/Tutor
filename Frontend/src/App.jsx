@@ -93,7 +93,16 @@ function AppContent() {
                 </ProtectedRoute>
               } 
             />
-            <Route path="/profile" element={<ProtectedRoute><TutorProfile /></ProtectedRoute>} />
+            
+            {/* ✅ Updated profile route to be dynamic */}
+            <Route 
+              path="/tutors/:id" 
+              element={
+                <ProtectedRoute>
+                  <TutorProfile />
+                </ProtectedRoute>
+              } 
+            />
           </Routes>
         </Suspense>
       </main>

@@ -1,40 +1,33 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import Button from './Button';
-import { FaUserCircle, FaChevronDown, FaSignOutAlt } from 'react-icons/fa';
+import { FaUserCircle, FaChevronDown, FaSignOutAlt, FaBars, FaTimes } from 'react-icons/fa';
 import Swal from 'sweetalert2';
+import Button from './Button';
 import ThemeToggle from './ThemeToggle';
 import { useTheme } from '../../contexts/ThemeContext';
+import { useAuth } from '../../contexts/AuthContext';
 
 const Navbar = () => {
-  const navigate = useNavigate();
-  const user = JSON.parse(localStorage.getItem('user'));
-  const [dropdownOpen, setDropdownOpen] = useState(false);
-  const dropdownRef = useRef(null);
+  const { user, logout } = useAuth();
   const { theme } = useTheme();
+  const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
+  const dropdownRef = useRef(null);
+  const navigate = useNavigate();
 
-  // Close dropdown when clicking outside
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
         setDropdownOpen(false);
       }
     };
-
     document.addEventListener('mousedown', handleClickOutside);
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-    };
+    return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
   const handleLogout = async () => {
     const userName = user?.name || 'teacher';
-    
-    // First remove the user data
-    localStorage.removeItem('user');
-    localStorage.removeItem('token');
-    
-    // Then show the goodbye popup
+    await logout();
     await Swal.fire({
       title: 'Goodbye!',
       html: `
@@ -56,100 +49,77 @@ const Navbar = () => {
         htmlContainer: 'text-center'
       }
     });
-
-    // Finally navigate to the landing page
-    window.location.href = '/';
+    navigate('/');
   };
 
-  const toggleDropdown = () => {
-    setDropdownOpen(!dropdownOpen);
-  };
+  const toggleDropdown = () => setDropdownOpen(prev => !prev);
+  const toggleMenu = () => setMenuOpen(prev => !prev);
+  const closeMenu = () => setMenuOpen(false);
 
   return (
-    <nav className="shadow-lg" style={{ backgroundColor: theme.background, borderBottom: `1px solid ${theme.border}`, fontFamily: '"Comic Relief", sans-serif' }}>
+    <nav 
+      className="shadow-lg fixed w-full z-50 transition-all duration-300 ease-in-out"
+      style={{ backgroundColor: theme.background, borderBottom: `1px solid ${theme.border}`, fontFamily: '"Comic Relief", sans-serif' }}
+    >
       <div className="max-w-7xl mx-auto px-4">
         <div className="flex justify-between h-16 items-center">
-          {/* Left: Logo */}
+          {/* Logo */}
           <div className="flex items-center">
-            <Link to="/" className="flex items-center" style={{ fontFamily: '"Comic Relief", sans-serif' }}>
-              <span className="text-xl font-bold" style={{ color: theme.accent, fontFamily: '"Comic Relief", sans-serif' }}>TutorApp</span>
-            </Link>
-            {/* About link */}
-            <Link to="/about" className="ml-8 font-medium" style={{ color: theme.text, fontFamily: '"Comic Relief", sans-serif' }}>
-              About
+            <Link to="/" className="text-xl font-bold" style={{ color: theme.accent }}>
+              TutorApp
             </Link>
           </div>
 
-          {/* Center/Right: Auth links, Theme Toggle, Profile */}
-          <div className="flex items-center space-x-4">
-            {!user && (
+          {/* Desktop Menu */}
+          <div className="hidden md:flex items-center space-x-6">
+            <Link to="/about" className="font-medium hover:underline" style={{ color: theme.text }}>About</Link>
+
+            {!user ? (
               <>
-                <Link to="/login">
-                  <Button variant="secondary" style={{ fontFamily: '"Comic Relief", sans-serif' }}>Login</Button>
-                </Link>
-                <Link to="/register">
-                  <Button variant="primary" style={{ fontFamily: '"Comic Relief", sans-serif' }}>Register</Button>
-                </Link>
+                <Link to="/login"><Button variant="secondary">Login</Button></Link>
+                <Link to="/register"><Button variant="primary">Register</Button></Link>
               </>
-            )}
-
-            {/* Theme Toggle always at the end */}
-            <ThemeToggle />
-
-            {user && (
+            ) : (
               <>
                 {user.role === 'student' && (
                   <>
-                    <Link to="/find-tutors">
-                      <Button variant="secondary" style={{ fontFamily: '"Comic Relief", sans-serif' }}>Find Tutors</Button>
-                    </Link>
-                    <Link to="/create-request">
-                      <Button variant="secondary" style={{ fontFamily: '"Comic Relief", sans-serif' }}>Create Request</Button>
-                    </Link>
-                    <Link to="/my-requests">
-                      <Button variant="secondary" style={{ fontFamily: '"Comic Relief", sans-serif' }}>My Requests</Button>
-                    </Link>
+                    <Link to="/find-tutors"><Button variant="secondary">Find Tutors</Button></Link>
+                    <Link to="/create-request"><Button variant="secondary">Create Request</Button></Link>
+                    <Link to="/my-requests"><Button variant="secondary">My Requests</Button></Link>
                   </>
                 )}
                 {user.role === 'tutor' && (
                   <>
-                    <Link to="/open-requests">
-                      <Button variant="secondary" style={{ fontFamily: '"Comic Relief", sans-serif' }}>Open Requests</Button>
-                    </Link>
-                    <Link to="/schedule">
-                      <Button variant="secondary" style={{ fontFamily: '"Comic Relief", sans-serif' }}>Schedule</Button>
-                    </Link>
+                    <Link to="/open-requests"><Button variant="secondary">Open Requests</Button></Link>
+                    <Link to="/schedule"><Button variant="secondary">Schedule</Button></Link>
                   </>
                 )}
-                {/* Profile dropdown */}
+
+                {/* Profile */}
                 <div className="relative" ref={dropdownRef}>
-                  <button 
-                    onClick={toggleDropdown}
-                    className="flex items-center space-x-2 focus:outline-none"
-                  >
-                    <div className="w-8 h-8 rounded-full flex items-center justify-center" style={{ backgroundColor: theme.accent2 }}>
+                  <button onClick={toggleDropdown} className="flex items-center space-x-2 group">
+                    <div className="w-8 h-8 rounded-full flex items-center justify-center bg-opacity-50" style={{ backgroundColor: theme.accent2 }}>
                       {user.profilePicture ? (
-                        <img 
-                          src={user.profilePicture} 
-                          alt="Profile" 
-                          className="w-8 h-8 rounded-full object-cover"
-                        />
+                        <img src={user.profilePicture} alt="Profile" className="w-8 h-8 rounded-full object-cover" />
                       ) : (
                         <FaUserCircle className="w-6 h-6" style={{ color: theme.text }} />
                       )}
                     </div>
-                    <span className="font-medium" style={{ color: theme.text }}>{user.name || user.email}</span>
-                    <FaChevronDown className={`transition-transform ${dropdownOpen ? 'transform rotate-180' : ''}`} style={{ color: theme.text }} />
+                    <span className="font-medium group-hover:underline" style={{ color: theme.text }}>
+                      {user.name || user.email}
+                    </span>
+                    <FaChevronDown className={`transform transition-transform duration-200 ${dropdownOpen ? 'rotate-180' : ''}`} style={{ color: theme.text }} />
                   </button>
+
+                  {/* Dropdown Menu */}
                   {dropdownOpen && (
-                    <div className="absolute right-0 mt-2 w-48 rounded-md shadow-lg py-1 z-10" style={{ backgroundColor: theme.cardBg, border: `1px solid ${theme.border}` }}>
-                      <div className="px-4 py-2 border-b" style={{ borderColor: theme.border }}>
-                        <p className="text-sm font-medium" style={{ color: theme.text }}>{user.name || 'User'}</p>
-                        <p className="text-xs truncate" style={{ color: theme.textSecondary }}>{user.email}</p>
-                      </div>
+                    <div 
+                      className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-2 animate-fade-in"
+                      style={{ backgroundColor: theme.cardBg, border: `1px solid ${theme.border}` }}
+                    >
                       <Link 
-                        to="/profile" 
-                        className="block px-4 py-2 text-sm hover:bg-opacity-10" 
+                        to={`/tutors/${user._id}`}
+                        className="block px-4 py-2 text-sm hover:bg-opacity-20"
                         style={{ color: theme.text }}
                         onClick={() => setDropdownOpen(false)}
                       >
@@ -157,7 +127,7 @@ const Navbar = () => {
                       </Link>
                       <button 
                         onClick={handleLogout}
-                        className="w-full text-left px-4 py-2 text-sm flex items-center hover:bg-opacity-10" 
+                        className="w-full text-left px-4 py-2 text-sm flex items-center hover:bg-opacity-20"
                         style={{ color: theme.accent }}
                       >
                         <FaSignOutAlt className="mr-2" />
@@ -168,11 +138,61 @@ const Navbar = () => {
                 </div>
               </>
             )}
+            <ThemeToggle />
           </div>
+
+          {/* Mobile Menu Button */}
+          <div className="md:hidden flex items-center">
+            <button onClick={toggleMenu}>
+              {menuOpen ? (
+                <FaTimes className="h-6 w-6 transition-transform duration-300" style={{ color: theme.text }} />
+              ) : (
+                <FaBars className="h-6 w-6 transition-transform duration-300" style={{ color: theme.text }} />
+              )}
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* Mobile Menu */}
+      <div
+        className={`md:hidden overflow-hidden transition-all duration-500 ease-in-out ${menuOpen ? 'max-h-screen' : 'max-h-0'}`}
+        style={{ backgroundColor: theme.background }}
+      >
+        <div className="flex flex-col px-4 py-4 space-y-4">
+          <Link to="/about" style={{ color: theme.text }} onClick={closeMenu}>About</Link>
+
+          {!user ? (
+            <>
+              <Link to="/login" onClick={closeMenu}><Button variant="secondary">Login</Button></Link>
+              <Link to="/register" onClick={closeMenu}><Button variant="primary">Register</Button></Link>
+            </>
+          ) : (
+            <>
+              {user.role === 'student' && (
+                <>
+                  <Link to="/find-tutors" onClick={closeMenu}><Button variant="secondary">Find Tutors</Button></Link>
+                  <Link to="/create-request" onClick={closeMenu}><Button variant="secondary">Create Request</Button></Link>
+                  <Link to="/my-requests" onClick={closeMenu}><Button variant="secondary">My Requests</Button></Link>
+                </>
+              )}
+              {user.role === 'tutor' && (
+                <>
+                  <Link to="/open-requests" onClick={closeMenu}><Button variant="secondary">Open Requests</Button></Link>
+                  <Link to="/schedule" onClick={closeMenu}><Button variant="secondary">Schedule</Button></Link>
+                </>
+              )}
+              <Link to={`/tutors/${user._id}`} onClick={closeMenu}><Button variant="secondary">Profile</Button></Link>
+              <button onClick={() => { handleLogout(); closeMenu(); }}>
+                <Button variant="primary">Logout</Button>
+              </button>
+            </>
+          )}
+          <ThemeToggle />
         </div>
       </div>
     </nav>
   );
 };
 
-export default Navbar; 
+export default Navbar;

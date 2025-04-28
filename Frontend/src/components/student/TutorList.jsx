@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { createRequest } from '../../api/authService';
 import { toast } from 'react-hot-toast';
 import axios from 'axios';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -46,7 +45,7 @@ const cardVariants = {
   }
 };
 
-// Sample subjects (you can replace this with data from your backend)
+// Sample subjects (replace with real data from your backend)
 const SUBJECTS = [
   'Mathematics', 'Physics', 'Chemistry', 'Biology', 
   'English', 'History', 'Computer Science', 'Economics'
@@ -56,13 +55,8 @@ const TutorList = () => {
   const navigate = useNavigate();
   const [tutors, setTutors] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [selectedTutor, setSelectedTutor] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedSubject, setSelectedSubject] = useState('');
-  const [formData, setFormData] = useState({
-    subject: '',
-    description: ''
-  });
 
   useEffect(() => {
     const fetchTutors = async () => {
@@ -71,7 +65,6 @@ const TutorList = () => {
           `${API_URL}/users/tutors`,
           { headers: getAuthHeader() }
         );
-        // Add sample ratings and subjects (replace with real data from backend)
         const tutorsWithDetails = response.data.map(tutor => ({
           ...tutor,
           rating: (Math.random() * 2 + 3).toFixed(1), // Random rating between 3-5
@@ -89,31 +82,6 @@ const TutorList = () => {
 
     fetchTutors();
   }, []);
-
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    if (!selectedTutor) {
-      toast.error('Please select a tutor');
-      return;
-    }
-
-    try {
-      await createRequest({
-        ...formData,
-        tutor: selectedTutor._id
-      });
-      toast.success('Request sent successfully!');
-      setFormData({ subject: '', description: '' });
-      setSelectedTutor(null);
-    } catch (error) {
-      toast.error(error.response?.data?.message || 'Failed to send request');
-    }
-  };
 
   const handleTutorSelect = (tutor) => {
     // Store the selected tutor in localStorage
@@ -256,67 +224,8 @@ const TutorList = () => {
           <p className="text-gray-500 text-lg">No tutors found matching your criteria</p>
         </motion.div>
       )}
-
-      {selectedTutor && (
-        <motion.div 
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: -20 }}
-          className="mt-8 bg-white shadow-lg rounded-xl p-8"
-        >
-          <h3 className="text-2xl font-semibold text-gray-900 mb-6">
-            Request {selectedTutor.name} as your tutor
-          </h3>
-          
-          <form onSubmit={handleSubmit} className="space-y-6">
-            <div>
-              <label htmlFor="subject" className="block text-sm font-medium text-gray-700 mb-2">
-                Subject
-              </label>
-              <select
-                id="subject"
-                name="subject"
-                required
-                className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
-                value={formData.subject}
-                onChange={handleChange}
-              >
-                <option value="">Select a subject</option>
-                {selectedTutor.subjects.map(subject => (
-                  <option key={subject} value={subject}>{subject}</option>
-                ))}
-              </select>
-            </div>
-
-            <div>
-              <label htmlFor="description" className="block text-sm font-medium text-gray-700 mb-2">
-                Description
-              </label>
-              <textarea
-                id="description"
-                name="description"
-                required
-                rows={4}
-                className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
-                value={formData.description}
-                onChange={handleChange}
-                placeholder="Describe what you need help with..."
-              />
-            </div>
-
-            <motion.button
-              type="submit"
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
-              className="w-full py-3 px-6 rounded-lg bg-gradient-to-r from-blue-500 to-blue-600 text-white font-semibold shadow-md hover:shadow-lg transition-all duration-200"
-            >
-              Send Request
-            </motion.button>
-          </form>
-        </motion.div>
-      )}
     </div>
   );
 };
 
-export default TutorList; 
+export default TutorList;
