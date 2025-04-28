@@ -72,7 +72,7 @@ const Navbar = () => {
 
           {/* Desktop Menu */}
           <div className="hidden md:flex items-center space-x-6">
-            <Link to="/about" className="font-medium hover:underline" style={{ color: theme.text }}>About</Link>
+            <Link to="/" className="font-medium hover:underline" style={{ color: theme.text }}>About</Link>
 
             {!user ? (
               <>

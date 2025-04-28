@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { FaChalkboardTeacher, FaSearch, FaMoneyBillWave, FaClock, FaUserGraduate } from 'react-icons/fa';
+import { FaChalkboardTeacher, FaMoneyBillWave, FaClock, FaUserGraduate } from 'react-icons/fa';
 import { useTheme } from '../contexts/ThemeContext';
 
 const LandingPage = () => {
@@ -12,7 +12,7 @@ const LandingPage = () => {
     const timer = setTimeout(() => {
       setIsLoaded(true);
     }, 500);
-    
+
     return () => clearTimeout(timer);
   }, []);
 
@@ -29,10 +29,10 @@ const LandingPage = () => {
       )}
 
       {/* Hero Section */}
-      <section className="py-20 px-4 text-center transition-opacity duration-1000" style={{ background: theme.accent, color: theme.background, opacity: isLoaded ? 1 : 0 }}>
-        <div className="max-w-4xl mx-auto">
-          <h1 className="text-5xl font-bold mb-6 animate-fade-in">Welcome to TutorConnect</h1>
-          <p className="text-xl mb-8 animate-fade-in-delay">Connect with students and share your knowledge</p>
+      <section className="py-40 px-4 text-center transition-opacity duration-1000" style={{ background: theme.accent, color: theme.background, opacity: isLoaded ? 1 : 0 }}>
+        <div className="max-w-full mx-auto">
+          <h1 className="text-5xl font-bold mb-6 animate-fade-in">One Spot to Connect Tutors and Students</h1>
+          <p className="text-xl mb-8 animate-fade-in-delay">Find the perfect tutor or student and start your learning journey today</p>
           <div className="space-x-4 animate-fade-in-delay-2">
             <Link to="/register" style={{ background: theme.background, color: theme.accent, padding: '0.75rem 2rem', borderRadius: '0.5rem', fontWeight: 600, boxShadow: '0 2px 8px rgba(0,0,0,0.08)' }}>
               Get Started
@@ -115,7 +115,7 @@ const LandingPage = () => {
         </div>
       </section>
 
-      {/* Add custom styles for animations */}
+      {/* Custom Animation Styles */}
       <style>
         {`
           @keyframes fadeIn {
@@ -160,4 +160,4 @@ const StepCard = ({ number, title, description, theme }) => (
   </div>
 );
 
-export default LandingPage; 
+export default LandingPage;

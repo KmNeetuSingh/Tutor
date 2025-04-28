@@ -27,13 +27,29 @@ export const Register = () => {
     }));
   };
 
+  const validateForm = () => {
+    if (!formData.name || !formData.email || !formData.password || !formData.confirmPassword) {
+      setError('All fields are required.');
+      return false;
+    }
+    if (formData.password !== formData.confirmPassword) {
+      setError('Passwords do not match.');
+      return false;
+    }
+    if (formData.password.length < 6) {
+      setError('Password should be at least 6 characters long.');
+      return false;
+    }
+    return true;
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
     setLoading(true);
 
-    if (formData.password !== formData.confirmPassword) {
-      toast.error('Passwords do not match');
+    if (!validateForm()) {
+      setLoading(false);
       return;
     }
 
@@ -42,14 +58,13 @@ export const Register = () => {
       const { confirmPassword, ...userData } = formData;
       const user = await register(userData);
 
-      // Show welcome popup
+      // Show success popup after successful registration
       await Swal.fire({
-        title: 'Welcome to TutorConnect!',
+        title: 'Registration Successful!',
         html: `
           <div class="text-center">
-            <p class="mb-4">Welcome, ${user.name}! 🎉</p>
-            <p class="text-sm text-gray-600">Thank you for joining our teaching community.</p>
-            <p class="text-sm text-gray-600 mt-2">Let's start making a difference together!</p>
+            <p class="mb-4">Congratulations, ${user.name}! 🎉</p>
+            <p class="text-sm text-gray-600">You have successfully registered. Welcome to the community!</p>
           </div>
         `,
         icon: 'success',
@@ -74,8 +89,8 @@ export const Register = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md w-full space-y-8 bg-white p-8 rounded-lg shadow-lg sm:w-3/4 md:w-2/3 lg:w-1/2 xl:w-1/3">
+    <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-6 sm:px-8 lg:px-12">
+      <div className="max-w-md w-full space-y-8 bg-white p-8 rounded-xl shadow-2xl sm:w-3/4 md:w-2/3 lg:w-1/2 xl:w-1/3">
         <div>
           <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
             Create your account
@@ -83,11 +98,11 @@ export const Register = () => {
         </div>
         <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
           {error && (
-            <div className="text-red-600 bg-red-100 p-2 rounded-md mb-4">
+            <div className="text-red-600 bg-red-100 p-3 rounded-md mb-4">
               <span>{error}</span>
             </div>
           )}
-          <div className="rounded-md shadow-sm -space-y-px">
+          <div className="rounded-md shadow-sm space-y-4">
             <div>
               <label htmlFor="name" className="sr-only">Full Name</label>
               <input
@@ -95,10 +110,16 @@ export const Register = () => {
                 name="name"
                 type="text"
                 required
-                className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
+                className="appearance-none rounded-md relative block w-full px-4 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-0 focus:border-transparent sm:text-sm"
                 placeholder="Full Name"
                 value={formData.name}
                 onChange={handleChange}
+                style={{
+                  background: theme.inputBg,
+                  borderColor: theme.border,
+                  color: theme.text,
+                  fontFamily: '"Comic Relief", sans-serif',
+                }}
               />
             </div>
             <div>
@@ -108,10 +129,16 @@ export const Register = () => {
                 name="email"
                 type="email"
                 required
-                className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
+                className="appearance-none rounded-md relative block w-full px-4 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-0 focus:border-transparent sm:text-sm"
                 placeholder="Email address"
                 value={formData.email}
                 onChange={handleChange}
+                style={{
+                  background: theme.inputBg,
+                  borderColor: theme.border,
+                  color: theme.text,
+                  fontFamily: '"Comic Relief", sans-serif',
+                }}
               />
             </div>
             <div>
@@ -122,7 +149,7 @@ export const Register = () => {
                 type="password"
                 required
                 autoComplete="new-password"
-                className="appearance-none rounded-none relative block w-full px-3 py-2 border rounded-b-md sm:text-sm"
+                className="appearance-none rounded-md relative block w-full px-4 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-0 focus:border-transparent sm:text-sm"
                 placeholder="Password"
                 value={formData.password}
                 onChange={handleChange}
@@ -131,9 +158,6 @@ export const Register = () => {
                   borderColor: theme.border,
                   color: theme.text,
                   fontFamily: '"Comic Relief", sans-serif',
-                  marginBottom: '0px',
-                  outline: 'none',
-                  boxShadow: 'none'
                 }}
               />
             </div>
@@ -145,7 +169,7 @@ export const Register = () => {
                 type="password"
                 required
                 autoComplete="new-password"
-                className="appearance-none rounded-none relative block w-full px-3 py-2 border rounded-b-md sm:text-sm"
+                className="appearance-none rounded-md relative block w-full px-4 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-0 focus:border-transparent sm:text-sm"
                 placeholder="Confirm Password"
                 value={formData.confirmPassword}
                 onChange={handleChange}
@@ -154,9 +178,6 @@ export const Register = () => {
                   borderColor: theme.border,
                   color: theme.text,
                   fontFamily: '"Comic Relief", sans-serif',
-                  marginBottom: '0px',
-                  outline: 'none',
-                  boxShadow: 'none'
                 }}
               />
             </div>
@@ -166,9 +187,15 @@ export const Register = () => {
                 id="role"
                 name="role"
                 required
-                className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
+                className="appearance-none rounded-md relative block w-full px-4 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-0 focus:border-transparent sm:text-sm"
                 value={formData.role}
                 onChange={handleChange}
+                style={{
+                  background: theme.inputBg,
+                  borderColor: theme.border,
+                  color: theme.text,
+                  fontFamily: '"Comic Relief", sans-serif',
+                }}
               >
                 <option value="student">Student</option>
                 <option value="tutor">Tutor</option>
@@ -180,7 +207,7 @@ export const Register = () => {
             <button
               type="submit"
               disabled={loading}
-              className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+              className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-blue-600 bg-transparent hover:bg-blue-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
             >
               {loading ? 'Registering...' : 'Register'}
             </button>

@@ -58,138 +58,6 @@ const getRequests = async (req, res) => {
   }
 };
 
-const getTutorRequests = async (req, res) => {
-  try {
-    console.log("Fetching tutor requests for:", req.user.id);
-    const requests = await Request.find({ tutor: req.user.id })
-      .populate("student", "name")
-      .populate("tutor", "name");
-    console.log("Fetched tutor requests:", requests.length);
-    res.json(requests);
-  } catch (err) {
-    console.error("Error fetching tutor requests:", err);
-    res.status(500).json({ message: "Server error while fetching tutor requests" });
-  }
-};
-
-const acceptRequest = async (req, res) => {
-  try {
-    console.log("Accepting request - User:", req.user, "Request ID:", req.params.id);
-    const request = await Request.findById(req.params.id);
-
-    if (!request) {
-      console.warn("Request not found for ID:", req.params.id);
-      return res.status(404).json({ message: "Request not found" });
-    }
-
-    if (request.tutor.toString() !== req.user.id) {
-      return res.status(403).json({ message: "Not authorized to accept this request" });
-    }
-
-    if (request.status !== 'pending') {
-      return res.status(400).json({ message: 'Request is not in pending status' });
-    }
-
-    request.status = "accepted";
-    await request.save();
-
-    await createNotification(
-      request.student,
-      "request_accepted",
-      "Request Accepted",
-      `Your tutoring request for ${request.subject} has been accepted`,
-      req.user.id,
-      request._id
-    );
-
-    console.log("Request accepted successfully:", request);
-    res.json(request);
-  } catch (err) {
-    console.error("Error accepting request:", err);
-    res.status(500).json({ message: "Server error while accepting request", error: err.message });
-  }
-};
-
-const rejectRequest = async (req, res) => {
-  try {
-    console.log("Rejecting request - User:", req.user, "Request ID:", req.params.id);
-    const request = await Request.findById(req.params.id);
-
-    if (!request) {
-      console.warn("Request not found for ID:", req.params.id);
-      return res.status(404).json({ message: "Request not found" });
-    }
-
-    if (request.tutor.toString() !== req.user.id) {
-      return res.status(403).json({ message: "Not authorized to reject this request" });
-    }
-
-    if (request.status !== 'pending') {
-      return res.status(400).json({ message: 'Request is not in pending status' });
-    }
-
-    request.status = "rejected";
-    await request.save();
-
-    await createNotification(
-      request.student,
-      "request_rejected",
-      "Request Rejected",
-      `Your tutoring request for ${request.subject} has been rejected. Please be available at the requested time or find another tutor.`,
-      req.user.id,
-      request._id
-    );
-
-    console.log("Request rejected successfully:", request);
-    res.json(request);
-  } catch (err) {
-    console.error("Error rejecting request:", err);
-    res.status(500).json({ message: "Server error while rejecting request", error: err.message });
-  }
-};
-
-const applyToRequest = async (req, res) => {
-  try {
-    console.log("Applying to request - User:", req.user, "Request ID:", req.params.id);
-    const request = await Request.findById(req.params.id);
-    if (!request) {
-      console.warn("Request not found for ID:", req.params.id);
-      return res.status(404).json({ message: "Request not found" });
-    }
-
-    request.tutor = req.user.id;
-    request.status = "applied";
-
-    await request.save();
-    console.log("Applied to request successfully:", request);
-    res.json(request);
-  } catch (err) {
-    console.error("Error applying to request:", err);
-    res.status(500).json({ message: "Server error while applying to request" });
-  }
-};
-
-const scheduleSession = async (req, res) => {
-  try {
-    console.log("Scheduling session - Request ID:", req.params.id, "Body:", req.body);
-    const request = await Request.findById(req.params.id);
-    if (!request) {
-      console.warn("Request not found for scheduling:", req.params.id);
-      return res.status(404).json({ message: "Request not found" });
-    }
-
-    request.scheduledDate = req.body.scheduledDate;
-    request.status = "scheduled";
-
-    await request.save();
-    console.log("Session scheduled successfully:", request);
-    res.json(request);
-  } catch (err) {
-    console.error("Error scheduling session:", err);
-    res.status(500).json({ message: "Server error while scheduling session" });
-  }
-};
-
 const getMyRequests = async (req, res) => {
   try {
     console.log("Fetching requests for user:", req.user.id);
@@ -247,29 +115,9 @@ const deleteRequest = async (req, res) => {
   }
 };
 
-const getOpenRequests = async (req, res) => {
-  try {
-    console.log("Fetching open requests...");
-    const requests = await Request.find({ status: 'pending' })
-      .populate("student", "name")
-      .populate("tutor", "name");
-    console.log("Fetched open requests:", requests.length);
-    res.json(requests);
-  } catch (err) {
-    console.error("Error fetching open requests:", err);
-    res.status(500).json({ message: "Server error while fetching open requests" });
-  }
-};
-
 module.exports = {
   createRequest,
   getRequests,
-  getTutorRequests,
-  acceptRequest,
-  rejectRequest,
-  applyToRequest,
-  scheduleSession,
   getMyRequests,
   deleteRequest,
-  getOpenRequests,
 };

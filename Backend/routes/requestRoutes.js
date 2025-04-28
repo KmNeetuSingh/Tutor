@@ -2,17 +2,11 @@ const express = require("express");
 const {
   createRequest,
   getRequests,
-  getTutorRequests,
-  acceptRequest,
-  rejectRequest,
-  applyToRequest,
-  scheduleSession,
   getMyRequests,
-  deleteRequest,
-  getOpenRequests
+  deleteRequest
 } = require("../controllers/requestController");
 
-const {authMiddleware} = require("../middleware/authMiddleware");
+const { authMiddleware } = require("../middleware/authMiddleware");
 const roleMiddleware = require("../middleware/roleMiddleware");
 const Request = require("../models/Request");
 const User = require("../models/User");
@@ -20,18 +14,18 @@ const User = require("../models/User");
 const router = express.Router();
 
 router.use(authMiddleware);
-router.post("/", roleMiddleware(["student"]), createRequest);
-router.get("/", getRequests);
-router.get("/my-requests", getMyRequests);
-router.get("/tutor", roleMiddleware(["tutor"]), getTutorRequests);
-router.post("/:id/accept", roleMiddleware(["tutor"]), acceptRequest);
-router.post("/:id/reject", roleMiddleware(["tutor"]), rejectRequest);
-router.post("/apply/:id", roleMiddleware(["tutor"]), applyToRequest);
-router.post("/schedule/:id", roleMiddleware(["tutor"]), scheduleSession);
-router.delete("/:id", deleteRequest);
 
-// Get all open requests (for tutors)
-router.get("/open", roleMiddleware(["tutor"]), getOpenRequests);
+// Route for creating a new request (only accessible by students)
+router.post("/", roleMiddleware(["student"]), createRequest);
+
+// Route for getting all requests (accessible by anyone)
+router.get("/", getRequests);
+
+// Route for getting the requests of the logged-in user
+router.get("/my-requests", getMyRequests);
+
+// Route for deleting a request (accessible by the student or tutor who created the request)
+router.delete("/:id", deleteRequest);
 
 // Save a request
 router.post('/:id/save', async (req, res) => {

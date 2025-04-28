@@ -1,104 +1,129 @@
-# API Testing Script
+# 📚 Tutor Connect App
 
-This script tests the Tutor API endpoints for the request functionality.
+A full-stack **Tutor Finder** application where students can find available tutors, search by subject, and request personalized tutoring sessions.  
+Built with **React**, **Node.js**, **Express**, and **MongoDB**.
 
-## Prerequisites
+---
 
-- Node.js installed
-- The backend server running on http://localhost:5000
+## ✨ Features
 
-## Setup
+- 🔍 **Search Tutors** by name, email, or subjects.
+- 📑 **Filter** by subject specialization.
+- 🧑‍🏫 **Tutor Profiles** with ratings and subjects.
+- 📦 **Tutor Request Form** to book a session.
+- 🌗 **Light/Dark Mode** theme support.
+- 📱 **Fully Responsive** design for mobile, tablet, and desktop.
+- 🔒 **Authentication** (JWT based).
+- 📊 **Admin Panel** (optional: manage tutors and students).
 
-1. Install dependencies:
+---
+
+## 🏗️ Tech Stack
+
+**Frontend**:
+- React.js
+- Tailwind CSS
+- React Router
+- Framer Motion (animations)
+- Axios (API calls)
+- React Hot Toast (notifications)
+
+**Backend**:
+- Node.js
+- Express.js
+- MongoDB
+- Mongoose
+- JSON Web Token (JWT)
+
+---
+
+## 🚀 Setup Instructions
+
+### 1. Clone the Repository
+```bash
+git clone https://github.com/your-username/tutor-connect-app.git
+cd tutor-connect-app
 ```
+
+### 2. Install Dependencies
+
+#### Frontend:
+```bash
+cd client
 npm install
 ```
 
-2. Make sure your backend server is running:
-```
-cd Backend
-npm start
-```
-
-## Running the Tests
-
-Run the test script:
-```
-npm test
+#### Backend:
+```bash
+cd server
+npm install
 ```
 
-## What the Test Does
+### 3. Setup Environment Variables
 
-The test script performs the following operations:
+Create a `.env` file in the `server/` directory:
 
-1. Registers a student user
-2. Logs in as the student and gets a token
-3. Creates a tutoring request (as a student)
-4. Gets all requests
-5. Registers a tutor user
-6. Logs in as the tutor and gets a token
-7. Applies to the request (as a tutor)
-8. Schedules a session (as a tutor)
-
-## Manual Testing
-
-You can also test the API manually using tools like Postman or curl:
-
-1. Register a user:
-```
-POST http://localhost:5000/api/users/register
-Content-Type: application/json
-
-{
-  "name": "Test User",
-  "email": "test@example.com",
-  "password": "password123",
-  "role": "student"
-}
+```bash
+PORT=5000
+MONGO_URI=your_mongodb_connection_string
+JWT_SECRET=your_secret_key
 ```
 
-2. Login to get a token:
-```
-POST http://localhost:5000/api/users/login
-Content-Type: application/json
-
-{
-  "email": "test@example.com",
-  "password": "password123"
-}
+> **Note:** If you are using frontend environment variables, create a `.env` inside `client/` too:
+```bash
+VITE_API_BASE_URL=http://localhost:5000/api
 ```
 
-3. Create a request (with token):
-```
-POST http://localhost:5000/api/requests
-Content-Type: application/json
-Authorization: Bearer YOUR_TOKEN_HERE
+### 4. Start the Development Servers
 
-{
-  "subject": "Mathematics",
-  "description": "Need help with calculus"
-}
+#### Backend (Server):
+```bash
+cd server
+npm run dev
 ```
 
-4. Get all requests:
-```
-GET http://localhost:5000/api/requests
-Authorization: Bearer YOUR_TOKEN_HERE
-```
-
-5. Apply to a request (as tutor):
-```
-POST http://localhost:5000/api/requests/apply/REQUEST_ID
-Authorization: Bearer TUTOR_TOKEN_HERE
+#### Frontend (React app):
+```bash
+cd client
+npm run dev
 ```
 
-6. Schedule a session:
-```
-POST http://localhost:5000/api/requests/schedule/REQUEST_ID
-Content-Type: application/json
-Authorization: Bearer TUTOR_TOKEN_HERE
+Now, open your browser and go to:  
+[http://localhost:5173](http://localhost:5173) (or the port Vite shows).
 
-{
-  "scheduledDate": "2023-12-01T14:00:00.000Z"
-}
+---
+
+## 🛠️ Folder Structure
+
 ```
+tutor-connect-app/
+├── client/          # React Frontend
+│   ├── src/
+│   │   ├── components/
+│   │   ├── pages/
+│   │   ├── contexts/
+│   │   └── App.jsx
+├── server/          # Node/Express Backend
+│   ├── controllers/
+│   ├── models/
+│   ├── routes/
+│   ├── middleware/
+│   └── server.js
+└── README.md
+```
+
+---
+
+## 🌟 Future Improvements
+
+- Profile pictures upload.
+- Tutor availability calendar integration.
+- Payment gateway integration (Stripe/PayPal).
+- Chat system between students and tutors.
+- Admin Dashboard with full analytics.
+
+---
+
+## 🙌 Contributing
+
+Pull requests are welcome. For major changes, please open an issue first to discuss what you would like to change.

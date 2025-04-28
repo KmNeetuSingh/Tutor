@@ -1,184 +1,174 @@
 const axios = require('axios');
 
-const BASE_URL = 'http://localhost:5000/api';
+const BASE_URL = 'http://localhost:8080/api'; // 👉 Adjust if your server runs somewhere else
 
-// Utility function to safely post data with better error handling
-const safePost = async (url, data, headers = {}) => {
+// Register New User
+const userData = {
+  name: 'Test User',
+  email: 'testuser123@gmail.com',  // 👈 Change if needed
+  password: 'password123',         // 👈 Change if needed
+  role: 'student',                 // student or tutor
+};
+
+// Login User
+const userLoginData = {
+  email: 'testuser123@gmail.com',   // 👈 Must match registered email
+  password: 'password123',          // 👈 Must match registered password
+};
+
+// Register user
+const registerUser = async () => {
   try {
-    const response = await axios.post(url, data, { headers });
-    return { success: true, data: response.data };
+    const response = await axios.post(`${BASE_URL}/users/register`, userData);
+    console.log('✅ User registered successfully:', response.data);
   } catch (error) {
-    return { success: false, error: error.response || error };
+    console.error('❌ Error registering user:', error.response ? error.response.data : error.message);
   }
 };
 
-// Utility function to safely put data with better error handling
-const safePut = async (url, data, headers = {}) => {
+// Login user
+const loginUser = async () => {
   try {
-    const response = await axios.put(url, data, { headers });
-    return { success: true, data: response.data };
+    const response = await axios.post(`${BASE_URL}/users/login`, userLoginData);
+    console.log('✅ User logged in successfully');
+    return response.data.token;
   } catch (error) {
-    return { success: false, error: error.response || error };
+    console.error('❌ Error logging in user:', error.response ? error.response.data : error.message);
   }
 };
 
-// Function to fetch user profile
-const getUserProfile = async (userId, token) => {
+// Get profile
+const getProfile = async (token) => {
   try {
-    const response = await axios.get(`${BASE_URL}/users/${userId}`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
+    const response = await axios.get(`${BASE_URL}/users/profile`, {
+      headers: { Authorization: `Bearer ${token}` },
     });
-    console.log('User Profile:', response.data);
+    console.log('✅ User profile fetched:', response.data);
   } catch (error) {
-    console.error('Error fetching user profile:', error.response ? error.response.data : error.message);
+    console.error('❌ Error fetching profile:', error.response ? error.response.data : error.message);
   }
 };
 
-// Function to fetch tutoring request
-const getRequest = async (requestId, token) => {
+// Update profile
+const updateProfile = async (token) => {
+  try {
+    const response = await axios.put(`${BASE_URL}/users/profile`, {
+      name: 'Updated Test User',
+    }, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    console.log('✅ User profile updated:', response.data);
+  } catch (error) {
+    console.error('❌ Error updating profile:', error.response ? error.response.data : error.message);
+  }
+};
+
+// Create a tutoring request
+const createTutoringRequest = async (token) => {
+  try {
+    const response = await axios.post(`${BASE_URL}/requests`, {
+      subject: 'Mathematics',
+      description: 'Need help with calculus',
+      availability: 'Weekends only',
+      level: 'Intermediate',
+    }, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    console.log('✅ Tutoring request created:', response.data);
+    return response.data._id;
+  } catch (error) {
+    console.error('❌ Error creating tutoring request:', error.response ? error.response.data : error.message);
+  }
+};
+
+// Fetch single request
+const getSingleRequest = async (requestId, token) => {
   try {
     const response = await axios.get(`${BASE_URL}/requests/${requestId}`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
+      headers: { Authorization: `Bearer ${token}` },
     });
-    console.log('Fetched Request:', response.data);
+    console.log('✅ Tutoring request fetched:', response.data);
   } catch (error) {
-    console.error('Error fetching request:', error.response ? error.response.data : error.message);
+    console.error('❌ Error fetching request:', error.response ? error.response.data : error.message);
   }
 };
 
-// Function to update tutoring request
-const updateRequest = async (requestId, updatedData, token) => {
+// Update a tutoring request
+const updateTutoringRequest = async (requestId, token) => {
   try {
-    const response = await axios.put(`${BASE_URL}/requests/${requestId}`, updatedData, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
+    const response = await axios.put(`${BASE_URL}/requests/${requestId}`, {
+      subject: 'Advanced Mathematics',
+      description: 'Need help with integration techniques',
+      availability: 'Weekdays after 6 PM',
+      level: 'Advanced',
+    }, {
+      headers: { Authorization: `Bearer ${token}` },
     });
-    console.log('Request updated:', response.data);
+    console.log('✅ Tutoring request updated:', response.data);
   } catch (error) {
-    console.error('Error updating request:', error.response ? error.response.data : error.message);
+    console.error('❌ Error updating tutoring request:', error.response ? error.response.data : error.message);
   }
 };
 
-// Test function to simulate actions
-async function testAPI() {
+// Save a tutoring request
+const saveRequest = async (requestId, token) => {
   try {
-    console.log('🚀 Starting API tests for /users and /requests routes...\n');
-
-    // === Testing /users route ===
-
-    // 1. Register New User
-    const userData = {
-      name: 'Sriti3',
-      email: 'sriti13@gmail.com', 
-      password: 'sriti131234',
-      role: 'student',
-    };
-
-    console.log('1. Registering new user...');
-    let res = await safePost(`${BASE_URL}/auth/register`, userData);
-    if (res.success) {
-      console.log('✅ New user registered successfully:', res.data.message || res.data);
-    } else if (res.error.status === 409) {
-      console.log('⚠️ User already exists, skipping registration...');
-    } else {
-      console.log('❌ User registration failed:', res.error?.data || res.error.message);
-      return;
-    }
-
-    // 2. User Login
-    const userLoginData = {
-      email: 'sriti13@gmail.com', 
-      password: 'sriti131234',
-    };
-
-    console.log('\n2. Logging in user...');
-    res = await safePost(`${BASE_URL}/auth/login`, userLoginData);
-    let userToken;
-    let userId;
-    if (res.success) {
-      userToken = res.data.token;
-      userId = res.data.user.id;
-      console.log('✅ User login successful.');
-    } else {
-      console.log('❌ User login failed:', res.error?.data || res.error.message);
-      return;
-    }
-
-    // 3. Fetch User Profile (Before Update)
-    console.log('\n3. Fetching user profile before update...');
-    await getUserProfile(userId, userToken);
-
-    // 4. Update User Profile
-    const updatedUserData = {
-      name: 'Bittu Updated',
-      bio: 'Updated bio for Bittu.',
-    };
-
-    console.log('\n4. Updating user profile...');
-    res = await safePut(`${BASE_URL}/users/${userId}`, updatedUserData, {
-      Authorization: `Bearer ${userToken}`,
+    const response = await axios.post(`${BASE_URL}/requests/${requestId}/save`, {}, {
+      headers: { Authorization: `Bearer ${token}` },
     });
-
-    if (res.success) {
-      console.log('✅ User profile updated successfully:', res.data);
-    } else {
-      console.log('❌ User profile update failed:', res.error?.data || res.error.message);
-      return;
-    }
-
-    // 5. Fetch User Profile (After Update)
-    console.log('\n5. Fetching user profile after update...');
-    await getUserProfile(userId, userToken);
-
-    // === Testing /requests route ===
-
-    // 1. Create New Request
-    const requestData = {
-      studentId: userId,
-      subject: 'Math',
-      description: 'Looking for help with algebra.',
-      preferredTime: '2025-04-30T10:00:00Z',
-    };
-
-    console.log('\n1. Creating new tutoring request...');
-    res = await safePost(`${BASE_URL}/requests`, requestData, {
-      Authorization: `Bearer ${userToken}`,
-    });
-    let requestId;
-    if (res.success) {
-      requestId = res.data.id;
-      console.log('✅ New tutoring request created successfully:', res.data);
-    } else {
-      console.log('❌ Tutoring request creation failed:', res.error?.data || res.error.message);
-      return;
-    }
-
-    // 2. Fetch Request Details
-    console.log('\n2. Fetching request details...');
-    await getRequest(requestId, userToken);
-
-    // 3. Update Request
-    const updatedRequestData = {
-      description: 'Looking for help with algebra and calculus.',
-      preferredTime: '2025-05-01T10:00:00Z',
-    };
-
-    console.log('\n3. Updating tutoring request...');
-    await updateRequest(requestId, updatedRequestData, userToken);
-
-    // 4. Fetch Request Details After Update
-    console.log('\n4. Fetching request details after update...');
-    await getRequest(requestId, userToken);
-
-    console.log('\n🎯 All API tests completed!');
-  } catch (err) {
-    console.error('Unexpected error in testAPI:', err.message);
+    console.log('✅ Request saved successfully:', response.data);
+  } catch (error) {
+    console.error('❌ Error saving request:', error.response ? error.response.data : error.message);
   }
-}
+};
 
+// Unsave a tutoring request
+const unsaveRequest = async (requestId, token) => {
+  try {
+    const response = await axios.delete(`${BASE_URL}/requests/${requestId}/save`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    console.log('✅ Request unsaved successfully:', response.data);
+  } catch (error) {
+    console.error('❌ Error unsaving request:', error.response ? error.response.data : error.message);
+  }
+};
+
+// Main function to run all tests
+const testAPI = async () => {
+  try {
+    console.log('\n1. Registering User...');
+    await registerUser();
+
+    console.log('\n2. Logging in User...');
+    const userToken = await loginUser();
+
+    console.log('\n3. Fetching User Profile...');
+    await getProfile(userToken);
+
+    console.log('\n4. Updating User Profile...');
+    await updateProfile(userToken);
+
+    console.log('\n5. Creating Tutoring Request...');
+    const requestId = await createTutoringRequest(userToken);
+
+    console.log('\n6. Fetching Tutoring Request...');
+    await getSingleRequest(requestId, userToken);
+
+    console.log('\n7. Updating Tutoring Request...');
+    await updateTutoringRequest(requestId, userToken);
+
+    console.log('\n8. Saving Tutoring Request...');
+    await saveRequest(requestId, userToken);
+
+    console.log('\n9. Unsaving Tutoring Request...');
+    await unsaveRequest(requestId, userToken);
+
+    console.log('\n✅ All tests completed successfully!');
+  } catch (error) {
+    console.error('❌ Test run failed:', error.message);
+  }
+};
+
+// Run the test
 testAPI();

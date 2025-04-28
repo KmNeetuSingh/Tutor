@@ -2,7 +2,6 @@ import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import { getRequests } from '../../api/authService';
-import { FiBook, FiCalendar, FiClock, FiUser } from 'react-icons/fi';
 
 const Dashboard = () => {
   const { user, isStudent, isTutor } = useAuth();
@@ -33,16 +32,16 @@ const Dashboard = () => {
 
   if (loading) {
     return (
-      <div className="flex justify-center items-center h-64">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
+      <div className="flex justify-center items-center min-h-[60vh]">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-4 border-blue-500"></div>
       </div>
     );
   }
 
   return (
-    <div className="space-y-6">
-      <div className="bg-white shadow rounded-lg p-6">
-        <h2 className="text-2xl font-bold text-gray-900 mb-4">Welcome, {user?.name}!</h2>
+    <div className="space-y-8 px-4 md:px-8 lg:px-16 mt-24">
+      <div className="bg-white shadow-lg rounded-2xl p-8 mb-10">
+        <h2 className="text-3xl font-bold text-gray-900 mb-2">Welcome, {user?.name}!</h2>
         <p className="text-gray-600">
           {isStudent
             ? "Here's an overview of your tutoring requests and sessions."
@@ -50,19 +49,19 @@ const Dashboard = () => {
         </p>
       </div>
 
+      {/* Student Section */}
       {isStudent && (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div className="bg-white shadow rounded-lg p-6">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-medium text-gray-900">Pending Requests</h3>
-              {isStudent && (
-                <Link
-                  to="/create-request"
-                  className="text-sm text-blue-600 hover:text-blue-800"
-                >
-                  Create New Request
-                </Link>
-              )}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+          {/* Pending Requests */}
+          <div className="bg-white shadow-lg rounded-2xl p-6 space-y-6">
+            <div className="flex items-center justify-between">
+              <h3 className="text-xl font-semibold text-gray-900">Pending Requests</h3>
+              <Link
+                to="/create-request"
+                className="text-sm text-blue-600 hover:text-blue-800"
+              >
+                Create New
+              </Link>
             </div>
             {pendingRequests.length === 0 ? (
               <p className="text-gray-500">No pending requests</p>
@@ -71,11 +70,11 @@ const Dashboard = () => {
                 {pendingRequests.map(request => (
                   <div
                     key={request.id}
-                    className="border rounded-lg p-4 hover:bg-gray-50"
+                    className="border rounded-lg p-4 hover:bg-gray-50 hover:shadow-xl transform hover:-translate-y-1 transition duration-300 ease-in-out"
                   >
                     <div className="flex items-center justify-between">
                       <div>
-                        <h4 className="font-medium text-gray-900">{request.subject}</h4>
+                        <h4 className="font-semibold text-gray-900">{request.subject}</h4>
                         <p className="text-sm text-gray-500">{request.description}</p>
                       </div>
                       <span className="px-2 py-1 text-xs font-medium rounded-full bg-yellow-100 text-yellow-800">
@@ -88,9 +87,10 @@ const Dashboard = () => {
             )}
           </div>
 
-          <div className="bg-white shadow rounded-lg p-6">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-medium text-gray-900">Scheduled Sessions</h3>
+          {/* Scheduled Sessions */}
+          <div className="bg-white shadow-lg rounded-2xl p-6 space-y-6">
+            <div className="flex items-center justify-between">
+              <h3 className="text-xl font-semibold text-gray-900">Scheduled Sessions</h3>
               <Link
                 to="/dashboard/my-requests"
                 className="text-sm text-blue-600 hover:text-blue-800"
@@ -105,11 +105,11 @@ const Dashboard = () => {
                 {scheduledSessions.map(request => (
                   <div
                     key={request.id}
-                    className="border rounded-lg p-4 hover:bg-gray-50"
+                    className="border rounded-lg p-4 hover:bg-gray-50 hover:shadow-xl transform hover:-translate-y-1 transition duration-300 ease-in-out"
                   >
                     <div className="flex items-center justify-between">
                       <div>
-                        <h4 className="font-medium text-gray-900">{request.subject}</h4>
+                        <h4 className="font-semibold text-gray-900">{request.subject}</h4>
                         <p className="text-sm text-gray-500">
                           {new Date(request.scheduledDate).toLocaleDateString()}
                         </p>
@@ -126,11 +126,13 @@ const Dashboard = () => {
         </div>
       )}
 
+      {/* Tutor Section */}
       {isTutor && (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div className="bg-white shadow rounded-lg p-6">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-medium text-gray-900">Open Requests</h3>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+          {/* Open Requests */}
+          <div className="bg-white shadow-lg rounded-2xl p-6 space-y-6">
+            <div className="flex items-center justify-between">
+              <h3 className="text-xl font-semibold text-gray-900">Open Requests</h3>
               <Link
                 to="/dashboard/open-requests"
                 className="text-sm text-blue-600 hover:text-blue-800"
@@ -148,11 +150,11 @@ const Dashboard = () => {
                   .map(request => (
                     <div
                       key={request.id}
-                      className="border rounded-lg p-4 hover:bg-gray-50"
+                      className="border rounded-lg p-4 hover:bg-gray-50 hover:shadow-xl transform hover:-translate-y-1 transition duration-300 ease-in-out"
                     >
                       <div className="flex items-center justify-between">
                         <div>
-                          <h4 className="font-medium text-gray-900">{request.subject}</h4>
+                          <h4 className="font-semibold text-gray-900">{request.subject}</h4>
                           <p className="text-sm text-gray-500">{request.description}</p>
                         </div>
                         <Link
@@ -168,9 +170,10 @@ const Dashboard = () => {
             )}
           </div>
 
-          <div className="bg-white shadow rounded-lg p-6">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-medium text-gray-900">Scheduled Sessions</h3>
+          {/* Scheduled Sessions */}
+          <div className="bg-white shadow-lg rounded-2xl p-6 space-y-6">
+            <div className="flex items-center justify-between">
+              <h3 className="text-xl font-semibold text-gray-900">Scheduled Sessions</h3>
               <Link
                 to="/dashboard/schedule"
                 className="text-sm text-blue-600 hover:text-blue-800"
@@ -185,11 +188,11 @@ const Dashboard = () => {
                 {scheduledSessions.map(request => (
                   <div
                     key={request.id}
-                    className="border rounded-lg p-4 hover:bg-gray-50"
+                    className="border rounded-lg p-4 hover:bg-gray-50 hover:shadow-xl transform hover:-translate-y-1 transition duration-300 ease-in-out"
                   >
                     <div className="flex items-center justify-between">
                       <div>
-                        <h4 className="font-medium text-gray-900">{request.subject}</h4>
+                        <h4 className="font-semibold text-gray-900">{request.subject}</h4>
                         <p className="text-sm text-gray-500">
                           {new Date(request.scheduledDate).toLocaleDateString()}
                         </p>
@@ -209,4 +212,4 @@ const Dashboard = () => {
   );
 };
 
-export default Dashboard; 
+export default Dashboard;
